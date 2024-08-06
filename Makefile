@@ -2,7 +2,7 @@ export CC = gcc
 
 client: FORCE
 	make -C client/ all	
-	mv server/cli_exec .
+	mv client/cli_exec .
 
 server: FORCE
 	make -C server/ all
