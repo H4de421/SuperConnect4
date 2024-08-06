@@ -60,17 +60,16 @@ int main()
         last->x = 0;
         last->y = 3;
 
-        if(check(tab,last->x,last->y,1,-1) || 
+        end = check(tab,last->x,last->y,1,-1) || 
            check(tab,last->x,last->y,1, 1) || 
            check(tab,last->x,last->y,1,0) || 
-           check(tab,last->x,last->y,0,1)) end = true;
+           check(tab,last->x,last->y,0,1);
     }
 
     // printf("[CLIENT]:helle world!\n");
 
     print_grid(tab);
-    if(end){
-        printf("BRAVO !");
-    }
+    printf("BRAVO !\n");
+
     free(tab);
 }
