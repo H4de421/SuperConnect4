@@ -13,9 +13,9 @@
 
 void print_grid(int *tab)
 {
-    for (int i=0; i < NB_Colums; i++){
+    for (int i=0; i < NB_Rows; i++){
         printf("--------------------------\n");
-        for (int j=0; j < NB_Rows; j++){
+        for (int j=0; j < NB_Colums; j++){
             printf("| %d ", tab[i*NB_Colums+j]);
         }
         printf("|\n");
