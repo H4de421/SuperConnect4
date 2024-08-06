@@ -19,8 +19,8 @@ Bienvenue dans **Connect4 Terminal Game**, un jeu de puissance 4 en ligne de com
 
 1. **Clonez le dépôt** :
     ```bash
-    git clone https://github.com/votre_nom/connect4_terminal_game.git
-    cd connect4_terminal_game
+    git clone git@github.com:Leyllio/connect4.git
+    cd connect4
     ```
 
 2. **Compilez le projet** :
@@ -89,7 +89,7 @@ Ce projet est sous licence MIT. Veuillez consulter le fichier `LICENSE` pour plu
 
 ## Auteurs
 
-- **Mathéo Petry (Leyllio)** - *Développeur Principal* - [Votre Profil GitHub](https://github.com/Leyllio)
-- **Clement Jonglas** - *Développeur Principal* - [Votre Profil GitHub](https://github.com/H4de421)
+- **Mathéo Petry (Leyllio)** - *Développeur Principal* - [Leyllio](https://github.com/Leyllio)
+- **Clement Jonglas** - *Développeur Principal* - [H4de421](https://github.com/H4de421)
 
 ---
