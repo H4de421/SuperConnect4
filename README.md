@@ -67,10 +67,6 @@ Bienvenue dans **Connect4 Terminal Game**, un jeu de puissance 4 en ligne de com
 
 ## Fichiers du Projet
 
-- **client.c** : Gère la connexion réseau et les interactions côté client.
-- **server.c** : Implémente le serveur de jeu qui coordonne les parties en réseau.
-- **game.c** : Contient la logique du jeu (affichage, vérification des conditions de victoire, etc.).
-- **game.h** : En-tête avec les définitions et les prototypes des fonctions de jeu.
 - **README.md** : Documentation du projet.
 
 ## Contributions
