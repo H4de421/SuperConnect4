@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #define NB_Rows 6
-#define NB_Colums 7
+#define NB_Columns 7
 
 struct coo
 {
@@ -17,20 +18,58 @@ void print_grid(int *tab)
     for (int x = 0; x < NB_Rows; x++)
     {
         printf("--------------------------\n");
-        for (int y = 0; y < NB_Colums; y++)
+        for (int y = 0; y < NB_Columns; y++)
         {
-            printf("| %d ", tab[x * NB_Colums + y]);
+            printf("| %d ", tab[x * NB_Columns + y]);
         }
         printf("|\n");
     }
     printf("--------------------------\n");
 }
 
+bool colomn_is_full(int *tab, int c)
+{
+    return tab[NB_Rows-1 * NB_Columns + c] != 0;
+}
+
+struct coo moove(int *tab, int player)
+{
+    int choice = 0;
+    struct coo *moove_piece = malloc(sizeof(struct coo));
+
+    do
+    {
+        printf("Choose a column between 1 and 7\n");
+        scanf("%d", &choice);
+        if (choice < 1 || choice > 7)
+        {
+            printf("Out of bound, choose a valid entry.\n\n");
+            while(getchar() != '\n');
+        }
+    }while (choice < 1 || choice > 7);
+
+    choice--;
+    moove_piece->y = choice;
+    if(!colomn_is_full(tab, choice))
+    {
+        for (int i = NB_Rows-1; i > 0 ; i--)
+        {
+            if (tab[i * NB_Columns + choice] == 0)
+            {
+                tab[i * NB_Columns + choice] = player;
+                moove_piece->x = i;
+                break;
+            }
+        }
+    }
+    return *moove_piece;
+}
+
 int sub_check(int *tab, int x, int y, int player, int r, int c)
 {
     x += r;
     y += c;
-    if (x * NB_Colums + y >= 0 && x * NB_Colums + y <= NB_Colums*NB_Rows && tab[x * NB_Colums + y] == player)
+    if (x * NB_Columns + y >= 0 && x * NB_Columns + y <= NB_Columns*NB_Rows && tab[x * NB_Columns + y] == player)
     {
         return sub_check(tab, x, y, player, r, c) + 1;
     }
@@ -39,27 +78,31 @@ int sub_check(int *tab, int x, int y, int player, int r, int c)
 
 bool check(int *tab, int x, int y, int r, int c)
 {
-    int p = tab[x * NB_Colums + y];
+    int p = tab[x * NB_Columns + y];
+    if(p == 0) perror("Bad placement, player == 0. Can't be possible\n");
     int score1 = sub_check(tab, x, y, p, r, c);
     int score2 = sub_check(tab, x, y, p, -r, -c);
-    printf("Score : %d\n", score1+score2+1);
     return score1 + score2 + 1 >= 4;
 }
 
 int main()
 {
     bool end = false;
-    int *tab = calloc(NB_Rows * NB_Colums, sizeof(int));
+    int *tab = calloc(NB_Rows * NB_Columns, sizeof(int));
     struct coo *last = malloc(sizeof(struct coo));
-    tab[0*NB_Colums + 0] = -1;
-    tab[0*NB_Colums + 1] = -1;
-    tab[0*NB_Colums + 2] = -1;
-    tab[0*NB_Colums + 3] = -1;
+    print_grid(tab);
     while (end != true)
     {
-        last->x = 0;
-        last->y = 3;
-
+        *last = moove(tab, 1);
+        print_grid(tab);
+        end = check(tab,last->x,last->y,1,-1) || 
+           check(tab,last->x,last->y,1, 1) || 
+           check(tab,last->x,last->y,1,0) || 
+           check(tab,last->x,last->y,0,1);
+        if(end) break;
+        
+        *last = moove(tab, -1);
+        print_grid(tab);
         end = check(tab,last->x,last->y,1,-1) || 
            check(tab,last->x,last->y,1, 1) || 
            check(tab,last->x,last->y,1,0) || 
@@ -68,7 +111,7 @@ int main()
 
     // printf("[CLIENT]:helle world!\n");
 
-    print_grid(tab);
+    // print_grid(tab);
     printf("BRAVO !\n");
 
     free(tab);
