@@ -37,7 +37,7 @@ Bienvenue dans **Connect4 Terminal Game**, un jeu de puissance 4 en ligne de com
 
 1. Lancez le jeu avec la commande suivante :
     ```bash
-    ./connect4
+    ./cli_exec
     ```
 
 2. Suivez les instructions affichées dans le terminal pour jouer. Les joueurs entrent tour à tour le numéro de la colonne où ils souhaitent jouer.
