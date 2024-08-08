@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <unistd.h>
 
 #define NB_Rows 6
 #define NB_Columns 7
@@ -12,24 +13,24 @@ struct coo
     int y;
 };
 
-
 void print_grid(int *tab)
 {
-    printf("\033[15A \n");
+    printf("\033[16A \n");
     for (int x = 0; x < NB_Rows; x++)
     {
-        printf("            ╠─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╣\n");
-        printf("            ");
+        printf("\t\t\t╠─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╣\033[1B\r\t\t\t");
         for (int y = 0; y < NB_Columns; y++)
         {
-            if(tab[x * NB_Columns + y] == 1)
-            printf("║ \033[0;31m■ \033[0m");
-            else if(tab[x * NB_Columns + y] == -1) printf("║ \033[0;33m■ \033[0m");
-            else printf ("║ X ");
+            if (tab[x * NB_Columns + y] == 1)
+                printf("║ \033[0;31m■ \033[0m");
+            else if (tab[x * NB_Columns + y] == -1)
+                printf("║ \033[0;33m■ \033[0m");
+            else
+                printf("║ X ");
         }
-        printf("║\n");
+        printf("║\033[1B\r");
     }
-    printf("            ╚═══╩═══╩═══╩═══╩═══╩═══╩═══╝\n");
+    printf("\t\t\t╚═══╩═══╩═══╩═══╩═══╩═══╩═══╝\033[3B\r");
 }
 
 bool colomn_is_full(int *tab, int c)
@@ -46,30 +47,40 @@ struct coo moove(int *tab, int player)
     {
         printf("Choose a column between 1 and 7 : ");
         scanf("%d", &choice);
+        printf("\033[1A");
         if (choice < 1 || choice > 7)
         {
             printf("Out of bound, choose a valid entry.\n\n");
-            while(getchar() != '\n');
         }
-    }while (choice < 1 || choice > 7);
+        if (colomn_is_full(tab, choice - 1))
+        {
+            printf("column is full, choose a valid entry.\n\n");
+        }
+    } while (choice < 1 || choice > 7);
 
     choice--;
     moove_piece->y = choice;
-    if(!colomn_is_full(tab, choice))
+    int i = choice;
+    tab[i] = player;
+    print_grid(tab);
+    while (i + NB_Columns < NB_Columns * NB_Rows && tab[i + NB_Columns] == 0)
     {
-        for (int i = NB_Rows-1; i >= 0 ; i--)
+        tab[i] = 0;
+        tab[i + NB_Columns] = player;
+        print_grid(tab);
+        sleep(1);
+        i += NB_Columns;
+    }
+    moove_piece->x = i / NB_Columns;
+    /*for (int i = NB_Rows-1; i >= 0 ; i--)
+    {
+        if (tab[i * NB_Columns + choice] == 0)
         {
-            if (tab[i * NB_Columns + choice] == 0)
-            {
-                tab[i * NB_Columns + choice] = player;
-                moove_piece->x = i;
-                break;
-            }
+            tab[i * NB_Columns + choice] = player;
+            moove_piece->x = i;
+            break;
         }
-    }
-    else{
-        printf("\033[1AOOB\n");
-    }
+    }*/
     return *moove_piece;
 }
 
@@ -77,7 +88,7 @@ int sub_check(int *tab, int x, int y, int player, int r, int c)
 {
     x += r;
     y += c;
-    if (x * NB_Columns + y >= 0 && x * NB_Columns + y <= NB_Columns*NB_Rows && tab[x * NB_Columns + y] == player)
+    if (x * NB_Columns + y >= 0 && x * NB_Columns + y <= NB_Columns * NB_Rows && tab[x * NB_Columns + y] == player)
     {
         return sub_check(tab, x, y, player, r, c) + 1;
     }
@@ -87,7 +98,8 @@ int sub_check(int *tab, int x, int y, int player, int r, int c)
 bool check(int *tab, int x, int y, int r, int c)
 {
     int p = tab[x * NB_Columns + y];
-    if(p == 0) perror("Bad placement, player == 0. Can't be possible\n");
+    if (p == 0)
+        perror("Bad placement, player == 0. Can't be possible\n");
     int score1 = sub_check(tab, x, y, p, r, c);
     int score2 = sub_check(tab, x, y, p, -r, -c);
     return score1 + score2 + 1 >= 4;
@@ -95,8 +107,8 @@ bool check(int *tab, int x, int y, int r, int c)
 
 int main()
 {
-    bool end = false;
     int *tab = calloc(NB_Rows * NB_Columns, sizeof(int));
+    bool end = false;
     struct coo *last = malloc(sizeof(struct coo));
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     print_grid(tab);
@@ -104,23 +116,25 @@ int main()
     {
         *last = moove(tab, 1);
         print_grid(tab);
-        end = check(tab,last->x,last->y,1,-1) || 
-           check(tab,last->x,last->y,1, 1) || 
-           check(tab,last->x,last->y,1,0) || 
-           check(tab,last->x,last->y,0,1);
-        if(end) break;
-        
+        end = check(tab, last->x, last->y, 1, -1) ||
+              check(tab, last->x, last->y, 1, 1) ||
+              check(tab, last->x, last->y, 1, 0) ||
+              check(tab, last->x, last->y, 0, 1);
+        if (end)
+            break;
+
         *last = moove(tab, -1);
         print_grid(tab);
-        end = check(tab,last->x,last->y,1,-1) || 
-           check(tab,last->x,last->y,1, 1) || 
-           check(tab,last->x,last->y,1,0) || 
-           check(tab,last->x,last->y,0,1);
+        end = check(tab, last->x, last->y, 1, -1) ||
+              check(tab, last->x, last->y, 1, 1) ||
+              check(tab, last->x, last->y, 1, 0) ||
+              check(tab, last->x, last->y, 0, 1);
     }
 
     // printf("[CLIENT]:helle world!\n");
 
     // print_grid(tab);
+    // Print Bravo !
     printf("\n\n  ____                         _ \n |  _ \\                       | |\n | |_) |_ __ __ ___   _____   | |\n |  _ <| '__/ _` \\ \\ / / _ \\  | |\n | |_) | | | (_| |\\ V / (_) | |_|\n |____/|_|  \\__,_| \\_/ \\___/  (_)\n\n");
 
     free(tab);
