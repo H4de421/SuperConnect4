@@ -1,17 +1,10 @@
-export CC = gcc
+CC=gcc
+CFLAGS= -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
+SRC= main.o
 
-client: FORCE
-	make -C client/ all	
-	mv client/cli_exec .
+all : $(addprefix src/,$(SRC))
+	$(CC) $(CFLAGS) -o cli_exec $^
 
-server: FORCE
-	make -C server/ all
-	mv server/ser_exec .
-
-clean:
-	make -C client/ clean
-	make -C server/ clean
-	rm -f ser_exec
+clean :
+	rm -f src/*.o
 	rm -f cli_exec
-
-FORCE:
