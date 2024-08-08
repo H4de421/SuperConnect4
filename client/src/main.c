@@ -23,8 +23,8 @@ void print_grid(int *tab)
         for (int y = 0; y < NB_Columns; y++)
         {
             if(tab[x * NB_Columns + y] == 1)
-            printf("║ \033[0;31m0 \033[0m");
-            else if(tab[x * NB_Columns + y] == -1) printf("║ \033[0;33mO \033[0m");
+            printf("║ \033[0;31m■ \033[0m");
+            else if(tab[x * NB_Columns + y] == -1) printf("║ \033[0;33m■ \033[0m");
             else printf ("║ X ");
         }
         printf("║\n");
