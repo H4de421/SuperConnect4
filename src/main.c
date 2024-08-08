@@ -36,9 +36,9 @@ struct coo moove(int *tab, int player) {
   struct coo *moove_piece = malloc(sizeof(struct coo));
 
   do {
+    printf("\033[1A");
     printf("Choose a column between 1 and 7 : ");
     scanf("%d", &choice);
-    printf("\033[1A");
     if (choice < 1 || choice > 7) {
       printf("Out of bound, choose a valid entry.\n\n");
     }
