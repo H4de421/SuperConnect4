@@ -1,6 +1,6 @@
 # Connect4 
 
-Bienvenue dans **Connect4 Terminal Game**, un jeu de puissance 4 en ligne de commande développé en C. Ce projet permet à deux joueurs de s'affronter dans une partie de puissance 4 sur le même terminal, soit en réseau via un serveur local.
+Bienvenue dans **Connect4 Terminal Game**, un jeu de puissance 4 en ligne de commande développé en C++. Ce projet permet à deux joueurs de s'affronter dans une partie de puissance 4 sur le même terminal, soit en réseau via un serveur local.
 
 ## Fonctionnalités
 
@@ -9,7 +9,7 @@ Bienvenue dans **Connect4 Terminal Game**, un jeu de puissance 4 en ligne de com
 
 ## Prérequis
 
-- Un compilateur C (CMake/Make recommandé)
+- Un compilateur C++ (CMake/Make recommandé)
 - Système d'exploitation basé sur Unix (Linux, macOS)
 - Accès à un terminal
 
