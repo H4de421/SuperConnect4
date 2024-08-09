@@ -1,9 +1,9 @@
-CC=gcc
-CFLAGS= -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
+CXX=g++
+CXXFLAGS= -Wall -Wextra -std=c++20 -Wold-style-cast -g
 SRC= main.o
 
 all : $(addprefix src/,$(SRC))
-	$(CC) $(CFLAGS) -o cli_exec $^
+	$(CXX) $(CPPFLAGS) -o cli_exec $^
 
 clean :
 	rm -f src/*.o
