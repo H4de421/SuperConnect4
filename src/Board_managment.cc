@@ -1,10 +1,21 @@
 #include "Board_managment.hh"
 
+bool game_finished(int *tab, int x, int y)
+{
+    return check(tab, x, y, 1, -1) ||
+           check(tab, x, y, 1, 1) ||
+           check(tab, x, y, 1, 0) ||
+           check(tab, x, y, 0, 1); 
+}
+
 bool check(int *tab, int x, int y, int r, int c)
 {
     int p = tab[x * NB_Columns + y];
     if (p == 0)
-        perror("Bad placement, player == 0. Can't be possible\n");
+    {
+        printf("x:%d y:%d \n", x, y);
+        perror("Bad placement, player == 0. Can't be possible :\n");
+    }
     int score1 = sub_check(tab, x, y, p, r, c);
     int score2 = sub_check(tab, x, y, p, -r, -c);
     return score1 + score2 + 1 >= 4;
@@ -122,4 +133,19 @@ int *get_diag2(int *tab, int r, int c)
         res[i]=tab[(r+3-1)*NB_Columns+c+i];
     }
     return res;   
+}
+
+/* return the raw of the higher piece in the column {column}*/
+int get_first_piece(int *tab, int column)
+{
+    /*if (colomn_is_full(tab, column))
+    {
+        return 0;
+    }*/
+    int deep = 0;
+    while (deep<NB_Rows && tab[deep*NB_Columns+column]==0)
+    {
+        deep+=1;
+    }
+    return deep;
 }

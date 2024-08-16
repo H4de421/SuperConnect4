@@ -12,6 +12,7 @@ struct coo {
   int y;
 };
 
+bool game_finished(int *tab, int x, int y);
 bool check(int *tab, int x, int y, int r, int c);
 int sub_check(int *tab, int x, int y, int player, int r, int c);
 bool colomn_is_full(int *tab, int c);
@@ -23,6 +24,8 @@ int *get_raw(int *tab, int shift);
 int *get_col(int *tab, int shift);
 int *get_diag1(int *tab, int r, int c);
 int *get_diag2(int *tab, int r, int c);
+
+int get_first_piece(int *tab, int column);
 
 int* copy_board(int *tab);
 

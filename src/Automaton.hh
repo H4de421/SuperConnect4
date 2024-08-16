@@ -16,7 +16,7 @@ struct windows_stats
 
 int automaton_thought_maker(int *tab, int difficulty);
 
-int automaton_MinMax_thing(int *tab, int deep, bool player_turn);
+int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int old_y);
 
 int automaton_threat_evaluation(int *tab);
 

@@ -1,18 +1,22 @@
 #include "Automaton.hh"
+#include <unistd.h>
 
 int automaton_thought_maker(int *tab, int difficulty)
 {
     int res = 0;
     int value = INT_MIN;
+    int values[7] = {0,0,0,0,0,0,0};
     for(int i = 0; i<NB_Columns; i++)
     {
         if (colomn_is_full(tab, i))
         {
+            values[i] = -1;
             continue;
         }
-        int* tab_c = copy_board(tab);
+        int* tab_c = copy_board(tab); 
         drop_piece(tab_c, i, -1);
-        int score = automaton_MinMax_thing(tab_c, difficulty, false); 
+        int score = automaton_MinMax_thing(tab_c, difficulty-1, true, get_first_piece(tab_c, i), i); 
+        values[i] = score;
         if (score > value)
         {
             res = i;
@@ -20,14 +24,23 @@ int automaton_thought_maker(int *tab, int difficulty)
         }
         free(tab_c);
     }
-    return res;//automaton_MinMax_thing(tab, 8, false);
+    return res;
 }
 
-int automaton_MinMax_thing(int *tab, int deep, bool player_turn)
+int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int old_y)
 {
-    if (deep==0)
+    bool ended = game_finished(tab, old_x, old_y);
+    if (ended || deep==0)
     {
-        return automaton_threat_evaluation(tab);
+        if (ended)
+        {
+            return (player_turn)? 42100 : -42100;
+        }
+        else
+        {
+
+            return automaton_threat_evaluation(tab);
+        }
     }
     srand(time(NULL));   // Initialization, should only be called once.
     if (player_turn)
@@ -41,7 +54,7 @@ int automaton_MinMax_thing(int *tab, int deep, bool player_turn)
             }
             int* tab_c = copy_board(tab);
             drop_piece(tab_c, i, -1);
-            int score = automaton_MinMax_thing(tab_c, deep-1, false); 
+            int score = automaton_MinMax_thing(tab_c, deep-1, false, get_first_piece(tab_c, i), i); 
             if (score < value)
             {
                 value = score;
@@ -61,7 +74,7 @@ int automaton_MinMax_thing(int *tab, int deep, bool player_turn)
             }
             int* tab_c = copy_board(tab);
             drop_piece(tab_c, i, -1);
-            int score = automaton_MinMax_thing(tab_c, deep-1, true); 
+            int score = automaton_MinMax_thing(tab_c, deep-1, true, get_first_piece(tab_c, i), i); 
             if (score > value)
             {
                 value = score;
@@ -157,14 +170,15 @@ int automaton_score(struct windows_stats *stats)
 
     if (stats->player==3 && stats->empty == 1)
     {
-        score-= 4;
+        score -= 100;
     }
+
     return score;
 }
 
 struct windows_stats *automaton_window_analyser(int *win, int size)
 {
-    struct windows_stats *res = (struct windows_stats *)malloc(sizeof(struct windows_stats));
+    struct windows_stats *res = (struct windows_stats *)calloc(1,sizeof(struct windows_stats));
     for (int i = 0; i< size; i++)
     {
         if (win[i]==1)

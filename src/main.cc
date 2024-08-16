@@ -138,37 +138,30 @@ int main() {
       if (input_handeler(input, &cursor))
       {
         *last = update_grid(tab, player, cursor, last);
-        end = check(tab, last->x, last->y, 1, -1) ||
-            check(tab, last->x, last->y, 1, 1) ||
-            check(tab, last->x, last->y, 1, 0) ||
-            check(tab, last->x, last->y, 0, 1); 
+
+        end = game_finished(tab, last->x, last->y);
         player *= -1;
       }
-      print_grid(tab);
-      print_cursor(cursor);
     }
     else
     {
-      int col = automaton_thought_maker(tab, 5);
-      update_grid(tab, player, col, last);
-      end = check(tab, last->x, last->y, 1, -1) ||
-            check(tab, last->x, last->y, 1, 1) ||
-            check(tab, last->x, last->y, 1, 0) ||
-            check(tab, last->x, last->y, 0, 1); 
+      int col = automaton_thought_maker(tab, 6);
+      //printf("automaton play -> %d\n", col);
+      *last = update_grid(tab, player, col, last);
+
+      end = game_finished(tab, last->x, last->y);
       player *= -1;
     }
+    print_grid(tab);
+    print_cursor(cursor);
   }
-  // Print Bravo !
-  /*printf("\n\n  ____                         _ \n |  _ \\                      "
-         " | |\n | |_) |_ __ __ ___   _____   | |\n |  _ <| '__/ _` \\ \\ / / "
-         "_ \\  | |\n | |_) | | | (_| |\\ V / (_) | |_|\n |____/|_|  \\__,_| "
-         "\\_/ \\___/  (_)\n\n");
-  */
   if (player == -1)
     print_congrats(true);
   else
     print_congrats(false);
+  print_grid(tab);
   printf("\e[?25h");
+  fflush(stdout);
   free(tab);
   free(last);
 }
