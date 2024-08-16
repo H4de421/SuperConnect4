@@ -1,19 +1,13 @@
-#include <errno.h>
+// #include "Board_managment.hh"
+#include "Automaton.hh"
+
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 #include <chrono>
 #include <thread>
 
-#define NB_Rows 6
-#define NB_Columns 7
-
-struct coo {
-  int x;
-  int y;
-};
 
 char getch (void)
 {
@@ -104,26 +98,6 @@ void print_cursor(int cursor)
   printf("┌─┐\033[1B\033[3D│ │\033[1B\033[3D╲_/\033[16B\r");
 }
 
-void print_grid(int *tab) {
-  printf("\r\033[19A \n");
-  printf("\033[8C                             \033[29D\033[1B                             \033[29D\033[1B                             \033[29D\033[1B");
-  for (int x = 0; x < NB_Rows; x++) {
-    printf("\r\t╠─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╣\033[1B\r\t");
-    for (int y = 0; y < NB_Columns; y++) {
-      if (tab[x * NB_Columns + y] == 1)
-        printf("║ \033[0;34m■ \033[0m");
-      else if (tab[x * NB_Columns + y] == -1)
-        printf("║ \033[0;31m■ \033[0m");
-      else
-        printf("║   ");
-    }
-    printf("║\033[1B\r");
-  }
-  printf("\t╚═══╩═══╩═══╩═══╩═══╩═══╩═══╝\033[3B\r");
-}
-
-bool colomn_is_full(int *tab, int c) { return tab[0 * 0 + c] != 0; }
-
 /* update the {cursor} with user input and return True id the input is validate*/
 int input_handeler(char input, int *cursor)
 {
@@ -145,45 +119,6 @@ int input_handeler(char input, int *cursor)
   return res;
 }
 
-/* put a {player}'color pawn at the top of the {column} */
-struct coo update_grid(int *tab, int player, int column, struct coo *moove_piece)
-{
-  moove_piece->y = column;
-  int i = column;
-  tab[i] = player;
-  print_grid(tab);
-  while (i + NB_Columns < NB_Columns * NB_Rows && tab[i + NB_Columns] == 0) 
-  {
-    tab[i] = 0;
-    tab[i + NB_Columns] = player;
-    print_grid(tab);
-    std::this_thread::sleep_for(std::chrono::milliseconds(75)); // = sleep(0.075)
-    i += NB_Columns;
-  }
-  moove_piece->x = i / NB_Columns;
-  return *moove_piece;
-}
-
-/* sub fontion of check */
-int sub_check(int *tab, int x, int y, int player, int r, int c) {
-  x += r;
-  y += c;
-  if (x * NB_Columns + y >= 0 && x * NB_Columns + y <= NB_Columns * NB_Rows &&
-      tab[x * NB_Columns + y] == player) {
-    return sub_check(tab, x, y, player, r, c) + 1;
-  }
-  return 0;
-}
-
-bool check(int *tab, int x, int y, int r, int c) {
-  int p = tab[x * NB_Columns + y];
-  if (p == 0)
-    perror("Bad placement, player == 0. Can't be possible\n");
-  int score1 = sub_check(tab, x, y, p, r, c);
-  int score2 = sub_check(tab, x, y, p, -r, -c);
-  return score1 + score2 + 1 >= 4;
-}
-
 int main() {
   int* tab =  (int*)calloc(NB_Rows * NB_Columns, sizeof(int));
   bool end = false;
@@ -197,29 +132,36 @@ int main() {
 
   printf("\e[?25l");
   while (end != true) {
-    char input = getch();
-    if (input_handeler(input, &cursor))
+    if (player == 1)
     {
-      *last = update_grid(tab, player, cursor, last);
-      end = check(tab, last->x, last->y, 1, -1) ||
-          check(tab, last->x, last->y, 1, 1) ||
-          check(tab, last->x, last->y, 1, 0) ||
-          check(tab, last->x, last->y, 0, 1); 
+      char input = getch();
+      if (input_handeler(input, &cursor))
+      {
+        *last = update_grid(tab, player, cursor, last);
+
+        end = game_finished(tab, last->x, last->y);
+        player *= -1;
+      }
+    }
+    else
+    {
+      int col = automaton_thought_maker(tab, 6);
+      //printf("automaton play -> %d\n", col);
+      *last = update_grid(tab, player, col, last);
+
+      end = game_finished(tab, last->x, last->y);
       player *= -1;
     }
     print_grid(tab);
     print_cursor(cursor);
   }
-  // Print Bravo !
-  /*printf("\n\n  ____                         _ \n |  _ \\                      "
-         " | |\n | |_) |_ __ __ ___   _____   | |\n |  _ <| '__/ _` \\ \\ / / "
-         "_ \\  | |\n | |_) | | | (_| |\\ V / (_) | |_|\n |____/|_|  \\__,_| "
-         "\\_/ \\___/  (_)\n\n");
-  */
-  print_congrats(true);
-  sleep(5);
-  print_congrats(false);
+  if (player == -1)
+    print_congrats(true);
+  else
+    print_congrats(false);
+  print_grid(tab);
   printf("\e[?25h");
+  fflush(stdout);
   free(tab);
   free(last);
 }
