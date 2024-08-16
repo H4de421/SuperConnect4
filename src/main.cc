@@ -50,13 +50,17 @@ void print_canvas()
   \033[0;33m║                                       ║  \033[0mthe \033[0;34mministry of Humanity\033[0;0m.                                        \033[0;33m║\n\
   \033[0;33m║                                       ║                                                                   ║\n\
   \033[0;33m║                                       ║  \033[0;34mFOR SUPER EARTH!                                                 \033[0;33m║\n\
-  \033[0;33m╚═══════════════════════════════════════╩═══════════════════════════════════════════════════════════════════╝\033[0;0m\n";
+  \033[0;33m║                                       ║                                                                   \033[0;33m║\n\
+  \033[0;33m╚═════════════════════════════════════╦═╩══════════════════════════════╦════════════════════════════════════╝\033[0;0m\n\
+  \033[0;33m                                      ║      show stratagèmes : X      ║\033[0;0m\n\
+  \033[0;33m                                      ╚════════════════════════════════╝\033[0;0m\033[2A\n";
+  
   printf("%s",canevas);
 }
 
 void print_congrats(bool player_has_won)
 {
-  printf("\033[45C\033[16A");
+  printf("\033[45C\033[17A");
   char congrats[] = "Good job \033[0;33mhelldiver\033[0;0m,                                              \033[67D\033[1B\
   Beating this enemy of democracy is a proof of your strength and  \033[67D\033[1B\
   your \033[0;34mdevotion\033[0;0m for the \033[0;34mSuper earth\033[0;0m. You are the pride of the      \033[67D\033[1B\
@@ -88,7 +92,7 @@ void print_congrats(bool player_has_won)
                                                                    \033[67D\033[1B\
   You chosed the wrong side. \033[0;31mgoodbye traitor\033[0;0m                       \033[67D\033[1B";
   printf("%s",player_has_won?congrats:regrets);
-  printf("\033[1B\r");
+  printf("\033[2B\r");
 }
 
 void print_cursor(int cursor)
@@ -160,7 +164,7 @@ int main() {
   else
     print_congrats(false);
   print_grid(tab);
-  printf("\e[?25h");
+  printf("\e[?25h\e[1B\n");
   fflush(stdout);
   free(tab);
   free(last);
