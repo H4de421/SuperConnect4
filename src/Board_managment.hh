@@ -19,6 +19,7 @@ bool colomn_is_full(int *tab, int c);
 
 struct coo update_grid(int *tab, int player, int column, struct coo *moove_piece);
 void drop_piece(int *tab, int column, int player);
+void del_first_piece(int *tab, int column);
 
 int *get_raw(int *tab, int shift);
 int *get_col(int *tab, int shift);
@@ -26,7 +27,5 @@ int *get_diag1(int *tab, int r, int c);
 int *get_diag2(int *tab, int r, int c);
 
 int get_first_piece(int *tab, int column);
-
-int* copy_board(int *tab);
 
 void print_grid(int *tab);

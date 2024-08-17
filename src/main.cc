@@ -52,7 +52,7 @@ void print_canvas()
   \033[0;33m║                                       ║  \033[0;34mFOR SUPER EARTH!                                                 \033[0;33m║\n\
   \033[0;33m║                                       ║                                                                   \033[0;33m║\n\
   \033[0;33m╚═════════════════════════════════════╦═╩══════════════════════════════╦════════════════════════════════════╝\033[0;0m\n\
-  \033[0;33m                                      ║      show stratagèmes : X      ║\033[0;0m\n\
+  \033[0;33m                                      ║      \033[0mshow stratagèmes : X\033[0;33m      ║\033[0;0m\n\
   \033[0;33m                                      ╚════════════════════════════════╝\033[0;0m\033[2A\n";
   
   printf("%s",canevas);
@@ -149,7 +149,7 @@ int main() {
     }
     else
     {
-      int col = automaton_thought_maker(tab, 6);
+      int col = automaton_thought_maker(tab, 7);
       //printf("automaton play -> %d\n", col);
       *last = update_grid(tab, player, col, last);
 

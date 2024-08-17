@@ -64,6 +64,12 @@ void drop_piece(int *tab, int column, int player)
     tab[deep*NB_Columns+column] = player;
 }
 
+void del_first_piece(int *tab, int column)
+{
+    int deep = get_first_piece(tab, column);
+    tab[deep*NB_Columns+column] = 0;
+}
+
 int* copy_board(int *tab)
 {
     int * res = (int*)malloc(NB_Rows * NB_Columns * sizeof(int));
@@ -110,7 +116,7 @@ int *get_col(int *tab, int shift)
     int *res = (int*)malloc(NB_Rows*sizeof(int));
     for (int i =0; i<NB_Rows; i++)
     {
-        res[i]=tab[i*NB_Rows+shift];
+        res[i]=tab[i*NB_Columns+shift];
     }
     return res;
 }

@@ -23,3 +23,5 @@ int automaton_threat_evaluation(int *tab);
 int automaton_score(struct windows_stats *stats);
 
 struct windows_stats *automaton_window_analyser(int *win, int size);
+
+int* window_maker(int *tab, int shift, bool column);
