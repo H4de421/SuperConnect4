@@ -27,12 +27,12 @@ int automaton_thought_maker(int *tab, int difficulty)
             value = score;
         }
     }
-    //D printf("values = |");
-    //D for (int i = 0; i< 7; i++)
-    //D {
-    //D    printf(" %d |", values[i]);
-    //D }
-    //D printf("  so the bot choosed %dth column ", res);
+    printf("values = |");
+    for (int i = 0; i< 7; i++)
+    {
+        printf(" %d |", values[i]);
+    }
+    printf("  so the bot choosed %dth column ", res);
     return res;
 }
 
@@ -122,6 +122,7 @@ int automaton_threat_evaluation(int *tab)
         }
         free(row);
     }
+    
     /* column check */
     for(int c = 0; c < NB_Columns; c++)
     {
@@ -162,6 +163,7 @@ int automaton_threat_evaluation(int *tab)
             free(wind);
         }
     }
+
     return score;
 }
 
@@ -184,7 +186,11 @@ int automaton_score(struct windows_stats *stats)
 
     if (stats->player==3 && stats->empty == 1)
     {
-        score -= 50;
+        score -= 300;
+    }
+    else if (stats->player==2 && stats->empty == 2)
+    {
+        score -= 200;
     }
     return score;
 }

@@ -4,7 +4,7 @@ SRC= main.o Board_managment.o Automaton.o
 
 all : $(addprefix src/,$(SRC))
 	$(CXX) $(CPPFLAGS) -o SuperConect4 $^
-
+	
 clean :
 	rm -f src/*.o
 	rm -f SuperConect4

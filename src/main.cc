@@ -149,7 +149,7 @@ int main() {
     }
     else
     {
-      int col = automaton_thought_maker(tab, 7);
+      int col = automaton_thought_maker(tab, 6);
       //printf("automaton play -> %d\n", col);
       *last = update_grid(tab, player, col, last);
 
