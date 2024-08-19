@@ -34,28 +34,68 @@ void print_canvas()
   \033[0;33m╔═════════════════════\033[0m╲___________________________║ ▄   ▄ ║___________________________╱\033[0;33m═════════════════════╗\n\    
   \033[0;33m║                         \033[0m╲_______________________╰─╮ ▴ ╭─╯_______________________╱                         \033[0;33m║\n\
   \033[0;33m║                                   \033[0m╲______ ╲_______╰─═─╯_____╱ ______╱                                     \033[0;33m║\n\
-  \033[0;33m║                                       ║                                                                   \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0mGreetings \033[0;33mHelldivers\033[0m,                                            \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0mProve you have the strength and courage to protect the \033[0;34mliberty\033[0m   \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0magainst the most vicious and cunning threats of the \033[0;34mdemocratie\033[0m.  \033[0;33m║\n\
   \033[0;33m║                                       ║                                                                   ║\n\
-  \033[0;33m║                                       ║  \033[0mBeat this \033[0;31mautomaton\033[0m strategist at the SuperConect4 to prove the  \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0msuperiority of the lasy \033[0;34mliberty\033[0m. Do not show merci to this       \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0minsensitive \033[0;31mfoe\033[0m of the super earth. Wins victory over this       \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0menemy and proclaims the superiotity of \033[0;34mmanaged democracy\033[0m.        \033[0;33m║\n\
   \033[0;33m║                                       ║                                                                   ║\n\
-  \033[0;33m║                                       ║  \033[0mThis is a \033[0;34mMANDATORY\033[0m training from \033[0;34mministry of Intelligence\033[0m.      \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0mEvery attempt to avoid this training session will result in      \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0ma suspension of the helldivers armed corps and an audience with  \033[0;33m║\n\
-  \033[0;33m║                                       ║  \033[0mthe \033[0;34mministry of Humanity\033[0;0m.                                        \033[0;33m║\n\
   \033[0;33m║                                       ║                                                                   ║\n\
-  \033[0;33m║                                       ║  \033[0;34mFOR SUPER EARTH!                                                 \033[0;33m║\n\
-  \033[0;33m║                                       ║                                                                   \033[0;33m║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
+  \033[0;33m║                                       ║                                                                   ║\n\
   \033[0;33m╚═════════════════════════════════════╦═╩══════════════════════════════╦════════════════════════════════════╝\033[0;0m\n\
-  \033[0;33m                                      ║      \033[0mshow stratagèmes : X\033[0;33m      ║\033[0;0m\n\
+  \033[0;33m                                      ║      \033[0mshow stratagèmes : p\033[0;33m      ║\033[0;0m\n\
   \033[0;33m                                      ╚════════════════════════════════╝\033[0;0m\033[2A\n";
   
   printf("%s",canevas);
+}
+
+void print_message()
+{
+  char message[] = "\r\e[43C\e[17A  \033[0mGreetings \033[0;33mHelldivers\033[0m,                                            \e[67D\e[1B\
+  \033[0mProve you have the strength and courage to protect the \033[0;34mliberty\033[0m   \e[67D\e[1B\
+  \033[0magainst the most vicious and cunning threats of the \033[0;34mdemocratie\033[0m.  \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+  \033[0mBeat this \033[0;31mautomaton\033[0m strategist at the SuperConect4 to prove the  \e[67D\e[1B\
+  \033[0msuperiority of the lasy \033[0;34mliberty\033[0m. Do not show merci to this       \e[67D\e[1B\
+  \033[0minsensitive \033[0;31mfoe\033[0m of the super earth. Wins victory over this       \e[67D\e[1B\
+  \033[0menemy and proclaims the superiotity of \033[0;34mmanaged democracy\033[0m.        \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+  \033[0mThis is a \033[0;34mMANDATORY\033[0m training from \033[0;34mministry of Intelligence\033[0m.      \e[67D\e[1B\
+  \033[0mEvery attempt to avoid this training session will result in      \e[67D\e[1B\
+  \033[0ma suspension of the helldivers armed corps and an audience with  \e[67D\e[1B\
+  \033[0mthe \033[0;34mministry of Humanity\033[0;0m.                                        \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+  \033[0;34mFOR SUPER EARTH!\033[0;0m                                                 \e[67D\e[3B\r";
+  printf("%s", message);
+}
+
+void print_stratagems()
+{
+  char message[] = "\e[43C\e[17A                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+                                                                   \e[67D\e[3B\r";
+  printf("%s", message);
 }
 
 void print_congrats(bool player_has_won)
@@ -103,7 +143,7 @@ void print_cursor(int cursor)
 }
 
 /* update the {cursor} with user input and return True id the input is validate*/
-int input_handeler(char input, int *cursor)
+int input_handeler(char input, int *cursor, bool *strat)
 {
   bool res = false;
   switch (input)
@@ -117,6 +157,9 @@ int input_handeler(char input, int *cursor)
   case 's':
     res = true;
     break;
+  case 'p':
+    *strat = !(*strat);
+    break;
   default:
     break;
   }
@@ -129,6 +172,7 @@ int main() {
   struct coo *last = (struct coo *)malloc(sizeof(struct coo));
   int player = 1;
   int cursor = 0;
+  bool stratagem = false;
 
   print_canvas();
   print_grid(tab);
@@ -139,7 +183,7 @@ int main() {
     if (player == 1)
     {
       char input = getch();
-      if (input_handeler(input, &cursor))
+      if (input_handeler(input, &cursor, &stratagem))
       {
         *last = update_grid(tab, player, cursor, last);
 
@@ -157,6 +201,7 @@ int main() {
       player *= -1;
     }
     print_grid(tab);
+    (stratagem)? print_stratagems() : print_message();
     print_cursor(cursor);
   }
   if (player == -1)
