@@ -27,12 +27,12 @@ int automaton_thought_maker(int *tab, int difficulty)
             value = score;
         }
     }
-    printf("values = |");
+    /*printf("values = |");
     for (int i = 0; i< 7; i++)
     {
         printf(" %d |", values[i]);
     }
-    printf("  so the bot choosed %dth column ", res);
+    printf("  so the bot choosed %dth column ", res);*/
     return res;
 }
 

@@ -175,6 +175,7 @@ int main() {
   bool stratagem = false;
 
   print_canvas();
+  print_message();
   print_grid(tab);
   print_cursor(cursor);
 
