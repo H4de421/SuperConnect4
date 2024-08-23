@@ -85,7 +85,7 @@ int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int 
             {
                 continue;
             }
-             drop_piece(tab, i, -1);
+            drop_piece(tab, i, -1);
             int score = automaton_MinMax_thing(tab, deep-1, false, get_first_piece(tab, i), i); 
             del_first_piece(tab, i);
             if (score > value)

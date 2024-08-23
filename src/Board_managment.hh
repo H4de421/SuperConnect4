@@ -1,3 +1,5 @@
+
+#pragma once
 #include <stdio.h>
 #include <errno.h>
 #include <chrono>
@@ -6,6 +8,7 @@
 
 #define NB_Rows 6
 #define NB_Columns 7
+
 
 struct coo {
   int x;
@@ -17,7 +20,7 @@ bool check(int *tab, int x, int y, int r, int c);
 int sub_check(int *tab, int x, int y, int player, int r, int c);
 bool colomn_is_full(int *tab, int c);
 
-struct coo update_grid(int *tab, int player, int column, struct coo *moove_piece);
+bool update_grid(int *tab, int player, int column, struct coo *moove_piece);
 void drop_piece(int *tab, int column, int player);
 void del_first_piece(int *tab, int column);
 
@@ -28,4 +31,5 @@ int *get_diag2(int *tab, int r, int c);
 
 int get_first_piece(int *tab, int column);
 
+//void print_init_grid(int *tab);
 void print_grid(int *tab);

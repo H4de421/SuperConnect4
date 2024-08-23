@@ -36,7 +36,7 @@ int sub_check(int *tab, int x, int y, int player, int r, int c)
 bool colomn_is_full(int *tab, int c) { return tab[0 * 0 + c] != 0; }
 
 /* put a {player}'color pawn at the top of the {column} */
-struct coo update_grid(int *tab, int player, int column, struct coo *moove_piece)
+bool update_grid(int *tab, int player, int column, struct coo *moove_piece)
 {
     moove_piece->y = column;
     int i = column;
@@ -50,8 +50,12 @@ struct coo update_grid(int *tab, int player, int column, struct coo *moove_piece
         std::this_thread::sleep_for(std::chrono::milliseconds(75)); // = sleep(0.075)
         i += NB_Columns;
     }
+    if (i + NB_Columns < NB_Columns * NB_Rows && tab[i + NB_Columns] == 2)
+    {
+        return false;
+    }
     moove_piece->x = i / NB_Columns;
-    return *moove_piece;
+    return true;
 }
 
 void drop_piece(int *tab, int column, int player)
@@ -61,7 +65,10 @@ void drop_piece(int *tab, int column, int player)
     {
         deep+=1;
     }
-    tab[deep*NB_Columns+column] = player;
+    if (deep+1<NB_Rows && tab[(deep+1)*NB_Columns+column]!=2)
+    {
+        tab[deep*NB_Columns+column] = player;
+    }
 }
 
 void del_first_piece(int *tab, int column)
@@ -84,21 +91,33 @@ void print_grid(int *tab)
 {
     printf("\r\033[19A \n");
     printf("\033[8C                             \033[29D\033[1B                             \033[29D\033[1B                             \033[29D\033[1B");
+    printf("\r\t╠─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╣\033[1B\r\t");
     for (int x = 0; x < NB_Rows; x++) 
     {
-        printf("\r\t╠─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╣\033[1B\r\t");
+        if (x == NB_Rows-1)
+        {
+            printf("\r\033[1B\t╚═══╩═══╩═══╩═══╩═══╩═══╩═══╝\r\t\033[1A");
+        }
+        else
+        {
+            printf("\r\033[1B\t╠─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╬─ ─╣\033[1A\r\t");
+        }
         for (int y = 0; y < NB_Columns; y++) 
         {
-            if (tab[x * NB_Columns + y] == 1)
+            if (tab[x * NB_Columns + y] == 3)
+                printf("║ \033[0;33m \033[1D\033[1B▀\033[1A \033[0m");
+            else if (tab[x * NB_Columns + y] == 2)
+                printf("║ \033[0;33m█ \033[0m");
+            else if (tab[x * NB_Columns + y] == 1)
                 printf("║ \033[0;34m■ \033[0m");
             else if (tab[x * NB_Columns + y] == -1)
                 printf("║ \033[0;31m■ \033[0m");
             else
                 printf("║   ");
         }
-        printf("║\033[1B\r");
+        printf("║\033[2B\r");
     }
-    printf("\t╚═══╩═══╩═══╩═══╩═══╩═══╩═══╝\033[3B\r");
+    printf("\033[2B\r");
 }
 
 int *get_raw(int *tab, int shift)

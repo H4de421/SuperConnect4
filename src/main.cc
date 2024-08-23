@@ -1,5 +1,11 @@
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
+
 // #include "Board_managment.hh"
 #include "Automaton.hh"
+#include "Stratagems.hh"
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -81,8 +87,8 @@ void print_message()
 void print_stratagems()
 {
   char message[] = "\e[43C\e[17A                                                                   \e[67D\e[1B\
-                                                                   \e[67D\e[1B\
-                                                                   \e[67D\e[1B\
+      ↑↓→←                                                         \e[67D\e[1B\
+      500Kg: ↑→↓↓↓                                                 \e[67D\e[1B\
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
@@ -143,7 +149,7 @@ void print_cursor(int cursor)
 }
 
 /* update the {cursor} with user input and return True id the input is validate*/
-int input_handeler(char input, int *cursor, bool *strat)
+bool input_handeler(char input, int *cursor, bool *strat)// int inputs[6])
 {
   bool res = false;
   switch (input)
@@ -166,6 +172,34 @@ int input_handeler(char input, int *cursor, bool *strat)
   return res;
 }
 
+int strat_handeler(char input, bool *strat)
+{
+  int res = 0;
+  switch (input)
+  {
+  case 'z':
+    res = 1;
+    break;
+  case 's':
+    res = 2;
+    break;
+  case 'd':
+    res = 3;
+    break;
+  case 'q':
+    res = 4;
+    break;
+  case 'p':
+    *strat = !(*strat);
+    break;
+  default:
+  break;
+  }
+  return res;
+}
+
+/* adding startagems handeling */
+
 int main() {
   int* tab =  (int*)calloc(NB_Rows * NB_Columns, sizeof(int));
   bool end = false;
@@ -174,8 +208,16 @@ int main() {
   int cursor = 0;
   bool stratagem = false;
 
+  struct stratagem b500k = {0, 0, {0,0,0,0,0,0,0}, strat_fun_500k};
+  struct stratagem mine  = {0, 0, {0,0,0,0,0,0,0}, strat_fun_mine};
+  {
+    /* data */
+  };
+  
+
   print_canvas();
   print_message();
+  //print_init_grid(tab);
   print_grid(tab);
   print_cursor(cursor);
 
@@ -184,19 +226,33 @@ int main() {
     if (player == 1)
     {
       char input = getch();
-      if (input_handeler(input, &cursor, &stratagem))
+      if (!stratagem)
       {
-        *last = update_grid(tab, player, cursor, last);
-
-        end = game_finished(tab, last->x, last->y);
-        player *= -1;
+        if (input_handeler(input, &cursor, &stratagem))
+        {
+          update_grid(tab, player, cursor, last);
+          end = game_finished(tab, last->x, last->y);
+          player *= -1;
+        }
+      }
+      else
+      {
+        int strat_input = strat_handeler(input, &stratagem);
+        if (strat_input == 1)
+        {
+          b500k.function(tab,cursor);
+        }
+        if (strat_input == 2)
+        {
+          mine.function(tab,cursor);
+        }
       }
     }
     else
     {
       int col = automaton_thought_maker(tab, 6);
       //printf("automaton play -> %d\n", col);
-      *last = update_grid(tab, player, col, last);
+      update_grid(tab, player, col, last);
 
       end = game_finished(tab, last->x, last->y);
       player *= -1;
