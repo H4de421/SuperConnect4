@@ -1,5 +1,7 @@
 #include "Board_managment.hh"
 
+#include <unistd.h>
+
 bool game_finished(int *tab, int x, int y)
 {
     return check(tab, x, y, 1, -1) ||
@@ -12,7 +14,7 @@ bool check(int *tab, int x, int y, int r, int c)
 {
     int p = tab[x * NB_Columns + y];
     if (p == 0)
-    {
+    {   
         printf("x:%d y:%d \n", x, y);
         perror("Bad placement, player == 0. Can't be possible :\n");
     }
@@ -50,8 +52,15 @@ bool update_grid(int *tab, int player, int column, struct coo *moove_piece)
         std::this_thread::sleep_for(std::chrono::milliseconds(75)); // = sleep(0.075)
         i += NB_Columns;
     }
-    if (i + NB_Columns < NB_Columns * NB_Rows && tab[i + NB_Columns] == 2)
+    if (i + NB_Columns < NB_Columns * NB_Rows && tab[i + NB_Columns] == 3)
     {
+        tab[i] = 0;
+        tab[i + NB_Columns] = player;
+        print_grid(tab);
+        std::this_thread::sleep_for(std::chrono::milliseconds(75)); // = sleep(0.075)
+        // explosion
+        tab[i + NB_Columns] = 0;
+        print_grid(tab);
         return false;
     }
     moove_piece->x = i / NB_Columns;
@@ -65,7 +74,7 @@ void drop_piece(int *tab, int column, int player)
     {
         deep+=1;
     }
-    if (deep+1<NB_Rows && tab[(deep+1)*NB_Columns+column]!=2)
+    if ((deep+1<NB_Rows && tab[(deep+1)*NB_Columns+column]!=2) || deep+1==NB_Rows)
     {
         tab[deep*NB_Columns+column] = player;
     }
@@ -118,6 +127,7 @@ void print_grid(int *tab)
         printf("║\033[2B\r");
     }
     printf("\033[2B\r");
+    fflush(stdout);
 }
 
 int *get_raw(int *tab, int shift)
@@ -158,6 +168,40 @@ int *get_diag2(int *tab, int r, int c)
         res[i]=tab[(r+3-1)*NB_Columns+c+i];
     }
     return res;   
+}
+
+void col_colapse(int *tab, int col, int deep)
+{
+    int pos = deep*NB_Columns+col;
+    for (int i = deep; i > 0; i--)
+    {
+        tab[pos] = tab[pos-NB_Columns];
+        pos -= NB_Columns;
+    }
+    tab[col] = 0;
+}
+
+void aply_gravity(int *tab)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    bool as_fell = true;
+    while (as_fell)
+    {
+        as_fell = false;
+        for(int raw = NB_Rows-1; raw > 0; raw--)
+        {
+            for(int col = 0; col < NB_Columns; col++)
+            {
+                if (tab[raw*NB_Columns+col] == 0 && tab[(raw-1)*NB_Columns+col] != 0)
+                {
+                    col_colapse(tab, col, raw);
+                    as_fell = true;
+                }
+            }
+            print_grid(tab);
+            std::this_thread::sleep_for(std::chrono::milliseconds(75));
+        }
+        }
 }
 
 /* return the raw of the higher piece in the column {column}*/

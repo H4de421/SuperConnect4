@@ -20,7 +20,7 @@ int automaton_thought_maker(int *tab, int difficulty)
         // restore the board
         del_first_piece(tab, i);
 
-        values[i] = score;
+        values[i] = score;  
         if (score > value)
         {
             res = i;

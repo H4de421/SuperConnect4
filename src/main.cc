@@ -14,7 +14,6 @@
 #include <chrono>
 #include <thread>
 
-
 char getch (void)
 {
 
@@ -88,9 +87,9 @@ void print_stratagems()
 {
   char message[] = "\e[43C\e[17A                                                                   \e[67D\e[1B\
       ↑↓→←                                                         \e[67D\e[1B\
-      500Kg: ↑→↓↓↓                                                 \e[67D\e[1B\
+      500Kg: ↑                                                     \e[67D\e[1B\
                                                                    \e[67D\e[1B\
-                                                                   \e[67D\e[1B\
+      mine:  ↓                                                     \e[67D\e[1B\
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
@@ -125,7 +124,7 @@ void print_congrats(bool player_has_won)
   char regrets[] = "Well, i \033[0;31mwarnd\033[0;0m you.                                               \033[67D\033[1B\
   you have been relieved of your duties. until now you are not a   \033[67D\033[1B\
   helldiver anymore. you have to join Mars as soon as possible.    \033[67D\033[1B\
-  All your weapons will be reassigned to new helldiver.            \033[67D\033[1B\
+  All your weapons will be reassigned to new helldiver.             \033[67D\033[1B\
   Your cape will be taken away from you, you do not deserve it.    \033[67D\033[1B\
   Not anymore.                                                     \033[67D\033[1B\
                                                                    \033[67D\033[1B\
@@ -198,12 +197,11 @@ int strat_handeler(char input, bool *strat)
   return res;
 }
 
-/* adding startagems handeling */
-
-int main() {
+int main()
+{
   int* tab =  (int*)calloc(NB_Rows * NB_Columns, sizeof(int));
   bool end = false;
-  struct coo *last = (struct coo *)malloc(sizeof(struct coo));
+  struct coo *last = (struct coo *)calloc(1, sizeof(struct coo));
   int player = 1;
   int cursor = 0;
   bool stratagem = false;
@@ -226,12 +224,19 @@ int main() {
     if (player == 1)
     {
       char input = getch();
+
       if (!stratagem)
       {
         if (input_handeler(input, &cursor, &stratagem))
         {
-          update_grid(tab, player, cursor, last);
-          end = game_finished(tab, last->x, last->y);
+          if (colomn_is_full(tab,cursor))
+          {
+            continue;
+          }
+          if (update_grid(tab, player, cursor, last))
+          {
+            end = game_finished(tab, last->x, last->y);
+          }
           player *= -1;
         }
       }
@@ -241,20 +246,25 @@ int main() {
         if (strat_input == 1)
         {
           b500k.function(tab,cursor);
+          player*=-1;
         }
         if (strat_input == 2)
         {
           mine.function(tab,cursor);
+          player*=-1;
         }
+        //player*=strat_input!=0? -1 : 1;
       }
     }
     else
     {
       int col = automaton_thought_maker(tab, 6);
       //printf("automaton play -> %d\n", col);
-      update_grid(tab, player, col, last);
+      if (update_grid(tab, player, col, last))
+      {
+        end = game_finished(tab, last->x, last->y);
+      }
 
-      end = game_finished(tab, last->x, last->y);
       player *= -1;
     }
     print_grid(tab);

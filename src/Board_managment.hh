@@ -31,5 +31,6 @@ int *get_diag2(int *tab, int r, int c);
 
 int get_first_piece(int *tab, int column);
 
-//void print_init_grid(int *tab);
+void col_colapse(int *tab, int col, int deep);
+void aply_gravity(int *tab);
 void print_grid(int *tab);
