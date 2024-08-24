@@ -1,7 +1,4 @@
-#define KEY_UP 72
-#define KEY_DOWN 80
-#define KEY_LEFT 75
-#define KEY_RIGHT 77
+#define NB_strat 2
 
 // #include "Board_managment.hh"
 #include "Automaton.hh"
@@ -83,13 +80,57 @@ void print_message()
   printf("%s", message);
 }
 
-void print_stratagems()
+void print_strat_arrows(struct stratagem *strat, bool avia)
 {
-  char message[] = "\e[43C\e[17A                                                                   \e[67D\e[1B\
-      ↑↓→←                                                         \e[67D\e[1B\
-      500Kg: ↑                                                     \e[67D\e[1B\
+
+  for(int i = 0; i<strat->total_size; i++)
+  {
+    if (avia)
+    {
+      if (strat->current > i)
+      {
+        printf("\033[0;33m");
+      }
+      else
+      {
+        printf("\033[1;0m");
+      }
+    }
+    else
+    {
+      printf("\033[90m");
+    }
+    switch (strat->buffer[i])
+    {
+    case 1:
+      printf("↑");
+      break;
+    case 2:
+      printf("↓");
+      break;
+    case 3:
+      printf("→");
+      break;
+    case 4:
+      printf("←");
+      break;
+    
+    default:
+      break;
+    }
+    printf("\033[0m");
+  }
+  //printf("%s■", (avia?"\033[0;33m":"\033[0m"), "\033[0m");
+}
+
+void print_stratagems(struct stratagem *stratagems[], bool avia[])
+{
+  // ↑↓→←  mine:  ↓←↑→  500Kg:
+  char message[] = "\r\e[43C\e[17A                                                                   \e[67D\e[1B\
                                                                    \e[67D\e[1B\
-      mine:  ↓                                                     \e[67D\e[1B\
+    [500Kg] :                                                      \e[67D\e[1B\
+                                                                   \e[67D\e[1B\
+    [mine]  :                                                      \e[67D\e[1B\
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
@@ -101,6 +142,14 @@ void print_stratagems()
                                                                    \e[67D\e[1B\
                                                                    \e[67D\e[3B\r";
   printf("%s", message);
+  printf("\033[15A");
+  for (int i =0; i< NB_strat; i++)
+  {
+    printf("\r\033[60C");
+    print_strat_arrows(stratagems[i],avia[i]);
+    printf("\033[2B");
+  }
+  printf("\033[%dB", 15-NB_strat*2);
 }
 
 void print_congrats(bool player_has_won)
@@ -197,6 +246,51 @@ int strat_handeler(char input, bool *strat)
   return res;
 }
 
+/* return -1 if none stratagmes is ready */
+int strat_maker(struct stratagem *stratagems[], bool availability[], int sta_input)
+{
+  bool one_on = false;
+  for(int i = 0; i < NB_strat;i++)
+  {
+    if (!availability[i])
+    {
+      continue;
+    }
+    struct stratagem *stratagem = stratagems[i];
+    if (stratagem->buffer[stratagem->current] == sta_input)
+    {
+      stratagem->current++;
+      one_on = true;
+    }
+    else
+    {
+      stratagem->current = 0;
+      availability[i] = false;
+    }
+    if (stratagem->current == stratagem->total_size)
+    {
+      for(int i = 0; i < NB_strat;i++)
+      {
+        availability[i] = true;
+        struct stratagem *stratagem = stratagems[i];
+        stratagem->current = 0;
+      }
+      return i;
+    }
+  }
+  /* reset */
+  if (!one_on)
+  {
+    for(int i = 0; i < NB_strat;i++)
+    {
+      availability[i] = true;
+      struct stratagem *stratagem = stratagems[i];
+      stratagem->current = 0;
+    }
+  }
+  return -1;
+}
+
 int main()
 {
   int* tab =  (int*)calloc(NB_Rows * NB_Columns, sizeof(int));
@@ -206,11 +300,11 @@ int main()
   int cursor = 0;
   bool stratagem = false;
 
-  struct stratagem b500k = {0, 0, {0,0,0,0,0,0,0}, strat_fun_500k};
-  struct stratagem mine  = {0, 0, {0,0,0,0,0,0,0}, strat_fun_mine};
-  {
-    /* data */
-  };
+  struct stratagem b500k = {5, 0, {1,3,2,2,2,0,0}, strat_fun_500k};
+  struct stratagem mine  = {4, 0, {2,4,1,3,0,0,0}, strat_fun_mine};
+  struct stratagem *stratagems[4] = {&b500k, &mine, 0, 0};
+  bool availability[4] = {true, true, true, true};
+
   
 
   print_canvas();
@@ -243,17 +337,14 @@ int main()
       else
       {
         int strat_input = strat_handeler(input, &stratagem);
-        if (strat_input == 1)
+        int strat_id = strat_maker(stratagems, availability, strat_input);
+        print_stratagems(stratagems, availability);
+        if (strat_id!=-1)
         {
-          b500k.function(tab,cursor);
+          stratagems[strat_id]->function(tab, cursor);
+          stratagem = false;
           player*=-1;
         }
-        if (strat_input == 2)
-        {
-          mine.function(tab,cursor);
-          player*=-1;
-        }
-        //player*=strat_input!=0? -1 : 1;
       }
     }
     else
@@ -268,7 +359,7 @@ int main()
       player *= -1;
     }
     print_grid(tab);
-    (stratagem)? print_stratagems() : print_message();
+    (stratagem)? print_stratagems(stratagems, availability) : print_message();
     print_cursor(cursor);
   }
   if (player == -1)
