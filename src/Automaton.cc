@@ -16,7 +16,7 @@ int automaton_thought_maker(int *tab, int difficulty)
         // changer the board
         drop_piece(tab, i, -1);
         
-        int score = automaton_MinMax_thing(tab, difficulty-1, true, get_first_piece(tab, i), i); 
+        int score = automaton_MinMax_thing(tab, difficulty-1, true, get_first_piece(tab, i), i, INT_MIN, INT_MAX); 
         // restore the board
         del_first_piece(tab, i);
 
@@ -33,21 +33,21 @@ int automaton_thought_maker(int *tab, int difficulty)
         printf(" %d |", values[i]);
     }
     printf("  so the bot choosed %dth column ", res);*/
+
     return res;
 }
 
-int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int old_y)
+int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int old_y, int alpha, int beta)
 {
     bool ended = game_finished(tab, old_x, old_y);
     if (ended || deep==0)
     {
         if (ended)
         {
-            return (player_turn)? 52100000 : -92100000;
+            return (player_turn)? INT_MAX : INT_MIN;
         }
         else
         {
-
             return automaton_threat_evaluation(tab);
         }
     }
@@ -64,13 +64,16 @@ int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int 
             }
         
             drop_piece(tab, i, 1);
-            int score = automaton_MinMax_thing(tab, deep-1, false, get_first_piece(tab, i), i); 
+            int score = automaton_MinMax_thing(tab, deep-1, false, get_first_piece(tab, i), i, alpha, beta); 
             del_first_piece(tab, i);
             if (score < value)
             {
                 value = score;
                 col_played = i;
             }
+            beta = beta > value ? value : beta ;
+            if (alpha >= beta)
+				break;
         }
         //D printf("player played col %d with score = %d\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", col_played, value);
         //D print_grid(tab);
@@ -86,12 +89,15 @@ int automaton_MinMax_thing(int *tab, int deep, bool player_turn, int old_x, int 
                 continue;
             }
             drop_piece(tab, i, -1);
-            int score = automaton_MinMax_thing(tab, deep-1, false, get_first_piece(tab, i), i); 
+            int score = automaton_MinMax_thing(tab, deep-1, false, get_first_piece(tab, i), i, alpha, beta); 
             del_first_piece(tab, i);
             if (score > value)
             {
                 value = score;
             }
+            alpha = alpha > value ? alpha : value;
+            if (alpha >= beta)
+				break;
         }
         return value;
     }
@@ -173,15 +179,15 @@ int automaton_score(struct windows_stats *stats)
 
     if (stats->automaton == 4)
     {
-        score += 100;
+        score += 1000;
     }
     if (stats->automaton == 3 && stats->empty == 1)
     {
-        score += 10;
+        score += 100;
     }
     else if (stats->automaton == 2 && stats->empty == 2)
     {
-        score += 2;
+        score += 20;
     }
 
     if (stats->player==3 && stats->empty == 1)
@@ -190,7 +196,7 @@ int automaton_score(struct windows_stats *stats)
     }
     else if (stats->player==2 && stats->empty == 2)
     {
-        score -= 200;
+        score -= 1000;
     }
     return score;
 }

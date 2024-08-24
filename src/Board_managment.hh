@@ -16,8 +16,14 @@ struct coo {
 };
 
 bool game_finished(int *tab, int x, int y);
+int check_down(int *tab, int x, int y, int player, int deep);
+int check_line(int *tab, int x, int y, int player, int deep, int shift);
+int check_diag1(int *tab, int x, int y, int player, int deep, int shift);
+int check_diag2(int *tab, int x, int y, int player, int deep, int shift);
+/*
 bool check(int *tab, int x, int y, int r, int c);
 int sub_check(int *tab, int x, int y, int player, int r, int c);
+*/
 bool colomn_is_full(int *tab, int c);
 
 bool update_grid(int *tab, int player, int column, struct coo *moove_piece);

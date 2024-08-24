@@ -4,6 +4,82 @@
 
 bool game_finished(int *tab, int x, int y)
 {
+    //return false;
+    int player = tab[x*NB_Columns+y];
+    int down = 1 + check_down(tab, x+1, y, player, 3);
+    int line = 1 + check_line(tab, x, y+1, player, 3, 1) + check_line(tab, x, y-1, player, 3, -1);
+    int diag1 = 1 + check_diag1(tab, x+1, y+1, player, 3, 1) + check_diag1(tab, x-1, y-1, player, 3, -1);
+    int diag2 = 1 + check_diag2(tab, x+1, y-1, player, 3, 1) + check_diag2(tab, x-1, y+1, player, 3, -1);
+    /*printf("down = %d\nline = %d\ndiag1 = %d\ndiag2 = %d\n", down, line, diag1, diag2);
+    printf("1-> %d \n", check_diag1(tab, x+1, y+1, player, 3, 1));
+    printf("2-> %d \n", check_diag1(tab, x-1, y-1, player, 3, -1));*/
+    return down >= 4 ||
+           line >= 4 ||
+           diag1 >= 4 ||
+           diag2 >= 4;
+}
+
+int check_down(int *tab, int x, int y, int player, int deep)
+{
+    if (deep == 0 || x == NB_Columns)
+    {
+        return 0;
+    }
+    if (tab[x*NB_Columns+y] == player)
+    {
+        return 1 + check_down(tab, x+1, y, player, deep-1);
+    }
+    return 0;
+}
+
+int check_line(int *tab, int x, int y, int player, int deep, int shift)
+{
+    if (deep == 0 || y == NB_Columns || y < 0)
+    {
+        return 0;
+    }
+    if (tab[x*NB_Columns+y] == player)
+    {
+        return 1 + check_line(tab, x, y+shift, player, deep-1, shift);;
+    }
+    return 0;
+}
+
+/* \ */
+int check_diag1(int *tab, int x, int y, int player, int deep, int shift)
+{
+    if (deep == 0 || (x*NB_Columns+y) < 0 || (x*NB_Columns+y) > NB_Columns*NB_Rows)
+    {
+        return 0;
+    }
+    if (tab[x*NB_Columns+y] == player)
+    {
+        return 1 + check_diag1(tab, x+shift, y+shift, player, deep-1, shift);
+    }
+    return 0;
+}
+
+/* / */
+int check_diag2(int *tab, int x, int y, int player, int deep, int shift)
+{
+    if (deep == 0)
+    {
+        return 0;
+    }
+    if ( x < 0 || x == NB_Rows || y == NB_Columns || y < 0 )
+    {
+        return deep==0;
+    }
+    if (tab[x*NB_Columns+y] == player)
+    {
+        return 1 + check_diag2(tab, x+shift, y-shift, player, deep-1, shift);
+    }
+    return 0;
+}
+
+/*
+bool game_finished(int *tab, int x, int y)
+{
     return check(tab, x, y, 1, -1) ||
            check(tab, x, y, 1, 1) ||
            check(tab, x, y, 1, 0) ||
@@ -34,7 +110,7 @@ int sub_check(int *tab, int x, int y, int player, int r, int c)
     }
     return 0;
 }
-
+*/
 bool colomn_is_full(int *tab, int c) { return tab[0 * 0 + c] != 0; }
 
 /* put a {player}'color pawn at the top of the {column} */
