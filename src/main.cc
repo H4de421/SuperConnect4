@@ -194,9 +194,10 @@ void print_stratagems(struct stratagem *stratagems[], bool avia[], int budget, b
                                          \033[0;33m║\033[0m                         \e[67D\e[1B\
                                          \033[0;33m║\033[0m                         \e[67D\e[1B\ 
                                          \033[0;33m║\033[0m                         \e[67D\e[1B\
-                                         \033[0;33m║\033[0m  [----name-----]   XR   \e[67D\e[1B\
-                                         \033[0;33m║\033[0m   ↓←↑→↓↓↓ RELOAD[X] 0   \e[67D\e[1B\
+                                         \033[0;33m║\033[0m                         \e[67D\e[1B\
+                                         \033[0;33m║\033[0m                         \e[67D\e[1B\
 \e[41C\033[0;33m╩\033[0m\e[1B\r";
+/* [----name-----]   XR /  ↓←↑→↓↓↓ RELOAD[X] 0*/
   printf("%s", message);
   fflush(stdout);
   printf("\033[11A");
@@ -270,6 +271,7 @@ bool input_handeler(char input, int *cursor, bool *strat, bool *strat_inp)// int
   case 'd':
     *cursor += (*cursor < 6)? 1:0;
     break;
+  case 'a':
   case 'q':
     *cursor -= (*cursor > 0)? 1:0;
     break;
@@ -293,6 +295,7 @@ int strat_handeler(char input, bool *strat_disp, bool *strat_inp)
   int res = 0;
   switch (input)
   {
+  case 'w':
   case 'z':
     res = 1;
     break;
@@ -303,6 +306,7 @@ int strat_handeler(char input, bool *strat_disp, bool *strat_inp)
     res = 3;
     break;
   case 'q':
+  case 'a':
     res = 4;
     break;
   case 'p':
@@ -379,11 +383,11 @@ int main()
   int cursor = 0;
   bool strat_page = false;
   bool strat_input = false;
-  int budget = 99 ;
+  int budget = BDG_INIT ;
 
   struct stratagem b500k = {5, 0, {1,3,2,2,2,0,0}, 3, 2, 2, 3, 0, false, false, strat_fun_500k, "500Kg bomb", false, -1,0};
   struct stratagem mine  = {4, 0, {2,4,1,3,0,0,0}, 1, 1, 1, 1, 0, false, false, strat_fun_mine, "mine", false, -1, 0};
-  struct stratagem barrage  = {6, 0, {3,3,2,4,3,2,0}, 8, 1, 1, 5, 0, false, false, strat_fun_barrage, "380mm barrage", true, 0, 3};
+  struct stratagem barrage = {6, 0, {3,3,2,4,3,2,0}, 8, 1, 1, 5, 0, false, false, strat_fun_barrage, "380mm barrage", true, 0, 3};
 
   struct stratagem *stratagems[4] = {&b500k, &mine, &barrage, 0};
   bool availability[4] = {true, true, true, true};

@@ -10,9 +10,6 @@ bool game_finished(int *tab, int x, int y)
     int line = 1 + check_line(tab, x, y+1, player, 3, 1) + check_line(tab, x, y-1, player, 3, -1);
     int diag1 = 1 + check_diag1(tab, x+1, y+1, player, 3, 1) + check_diag1(tab, x-1, y-1, player, 3, -1);
     int diag2 = 1 + check_diag2(tab, x+1, y-1, player, 3, 1) + check_diag2(tab, x-1, y+1, player, 3, -1);
-    /*printf("down = %d\nline = %d\ndiag1 = %d\ndiag2 = %d\n", down, line, diag1, diag2);
-    printf("1-> %d \n", check_diag1(tab, x+1, y+1, player, 3, 1));
-    printf("2-> %d \n", check_diag1(tab, x-1, y-1, player, 3, -1));*/
     return down >= 4 ||
            line >= 4 ||
            diag1 >= 4 ||
@@ -77,40 +74,6 @@ int check_diag2(int *tab, int x, int y, int player, int deep, int shift)
     return 0;
 }
 
-/*
-bool game_finished(int *tab, int x, int y)
-{
-    return check(tab, x, y, 1, -1) ||
-           check(tab, x, y, 1, 1) ||
-           check(tab, x, y, 1, 0) ||
-           check(tab, x, y, 0, 1); 
-}
-
-bool check(int *tab, int x, int y, int r, int c)
-{
-    int p = tab[x * NB_Columns + y];
-    if (p == 0)
-    {   
-        printf("x:%d y:%d \n", x, y);
-        perror("Bad placement, player == 0. Can't be possible :\n");
-    }
-    int score1 = sub_check(tab, x, y, p, r, c);
-    int score2 = sub_check(tab, x, y, p, -r, -c);
-    return score1 + score2 + 1 >= 4;
-}
-
-int sub_check(int *tab, int x, int y, int player, int r, int c)
-{ 
-    x += r;
-    y += c;
-    if (x * NB_Columns + y >= 0 && x * NB_Columns + y <= NB_Columns * NB_Rows &&
-        tab[x * NB_Columns + y] == player) 
-    {
-        return sub_check(tab, x, y, player, r, c) + 1;
-    }
-    return 0;
-}
-*/
 bool colomn_is_full(int *tab, int c) { return tab[0 * 0 + c] != 0; }
 
 /* put a {player}'color pawn at the top of the {column} */
@@ -197,6 +160,8 @@ void print_grid(int *tab)
                 printf("║ \033[0;34m■ \033[0m");
             else if (tab[x * NB_Columns + y] == -1)
                 printf("║ \033[0;31m■ \033[0m");
+            else if (tab[x * NB_Columns + y] == -2)
+                printf("║ \033[0;31m█ \033[0m");
             else
                 printf("║   ");
         }
