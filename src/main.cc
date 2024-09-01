@@ -1,15 +1,39 @@
-#define NB_strat 2
+#define NB_strat 3
+/* gamerules */
+#define BDG_INIT 3
+#define BDG_ROUD 1
 
 // #include "Board_managment.hh"
 #include "Automaton.hh"
 #include "Stratagems.hh"
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 #include <chrono>
 #include <thread>
+
+/* stack */
+
+struct stack{
+  int bmap;
+  int *durations;
+  void (*functions[8])(int *tab);
+};
+
+int *to_binary(int x)
+{
+  int *res = (int *)calloc(8, sizeof(int));
+  char test[8];
+  sprintf(test, "%8.b", x);
+  for (int i = 0; i< 8; i++)
+  {
+    res[7-i]=test[i]=='1';
+  }
+  return res;
+}
 
 char getch (void)
 {
@@ -54,7 +78,7 @@ void print_canvas()
   \033[0;33m║                                       ║                                                                   ║\n\
   \033[0;33m║                                       ║                                                                   ║\n\
   \033[0;33m╚═════════════════════════════════════╦═╩══════════════════════════════╦════════════════════════════════════╝\033[0;0m\n\
-  \033[0;33m                                      ║      \033[0mshow stratagèmes : p\033[0;33m      ║\033[0;0m\n\
+  \033[0;33m                                      ║      \033[0mshow stratagèmes : P\033[0;33m      ║\033[0;0m\n\
   \033[0;33m                                      ╚════════════════════════════════╝\033[0;0m\033[2A\n";
   
   printf("%s",canevas);
@@ -77,19 +101,19 @@ void print_message()
   \033[0mthe \033[0;34mministry of Humanity\033[0;0m.                                        \e[67D\e[1B\
                                                                    \e[67D\e[1B\
   \033[0;34mFOR SUPER EARTH!\033[0;0m                                                 \e[67D\e[1B\
-                                                              \e[67D\e[1B\
-\e[46C\033[0;33m═\033[0m\e[1B\r";                                                                                    
+                                                                \e[67D\e[1B\
+\e[44C\033[0;33m═\033[0m\e[1B\r";                                                                                    
   printf("%s", message);
 }
 
-void print_strat_arrows(struct stratagem *strat, bool avia)
+void print_strat_arrows(struct stratagem strat, bool avia)
 {
 
-  for(int i = 0; i<strat->total_size; i++)
+  for(int i = 0; i<strat.total_size; i++)
   {
     if (avia)
     {
-      if (strat->current > i)
+      if (strat.current > i)
       {
         printf("\033[0;33m");
       }
@@ -102,7 +126,7 @@ void print_strat_arrows(struct stratagem *strat, bool avia)
     {
       printf("\033[90m");
     }
-    switch (strat->buffer[i])
+    switch (strat.buffer[i])
     {
     case 1:
       printf("↑");
@@ -122,7 +146,35 @@ void print_strat_arrows(struct stratagem *strat, bool avia)
     }
     printf("\033[0m");
   }
+  printf("\033[%dD",strat.total_size);
   //printf("%s■", (avia?"\033[0;33m":"\033[0m"), "\033[0m");
+}
+
+void print_strat(struct stratagem strat, bool avia, int budget)
+{
+  char *color = "\033[0;34m";
+  char *color_name = "\033[0;33m";
+  if (strat.cost>budget)
+  {
+    color = "\033[0;31m"; 
+  }
+  if (!avia)
+  {
+    color_name = "\033[90m";
+    color = "\033[90m";
+  }
+  printf("%s%s\033[0m\r\033[85C\033[16C%s    %dR\033[0m\033[1B\r\033[86C  ",color_name, strat.name, color, strat.cost);
+  print_strat_arrows(strat, avia);
+  if (strat.in_reload)
+  {
+    printf("\033[8C\033[90mRELOAD[%d] %d\033[0m", (strat.reload), strat.charges);
+  }
+  else
+  {
+    printf("\033[18C%d\033[0m", strat.charges);
+  }
+  //printf("%d\033[0m", strat.charges);
+  fflush(stdout);
 }
 
 void print_stratagems(struct stratagem *stratagems[], bool avia[], int budget, bool stratagem)
@@ -130,34 +182,34 @@ void print_stratagems(struct stratagem *stratagems[], bool avia[], int budget, b
   // ↑↓→←  mine:  ↓←↑→  500Kg:
   char message[] = "\r\e[45C\e[17AUse the Super Erath arsenal to establish the our superiority.    \e[67D\e[1B\
                                                                    \e[67D\e[1B\
-  Using these higly democratic weapons will cost you budget points \e[67D\e[1B\
-  To use stratagmes first press E to enable the input capture,     \e[67D\e[1B\
-  then enter the corect input for deliver democracy to our enemies \e[67D\e[1B\
-                                                                   \e[67D\e[1B\
-  Budets points :                        \033[0;33m╔═════════════════════════╣\033[0m\e[68D\e[1B\
+  Using these highly democratic weapons will cost you budget       \e[67D\e[1B\
+  points. You will get more budget point every turn.               \e[67D\e[1B\
+  Some stratagem need time to be reload, so when you use all       \e[67D\e[1B\
+  charge available you have to wait before                         \e[67D\e[1B\
+  reuse them.                            \033[0;33m╔═════════════════════════╣\033[0m\e[68D\e[1B\
+                             \033[0;33m┌──────┐    ║\033[0m                         \e[67D\e[1B\
+                             \033[0;33m│    R │    ║\033[0m                         \e[67D\e[1B\
+                             \033[0;33m└──────┘    ║\033[0m                         \e[67D\e[1B\
+  Stratagems mode :                      \033[0;33m║\033[0m                         \e[67D\e[1B\
                                          \033[0;33m║\033[0m                         \e[67D\e[1B\
-  Stratagems mode :                      \033[0;33m║\033[0m   [500Kg] :             \e[67D\e[1B\
+                                         \033[0;33m║\033[0m                         \e[67D\e[1B\ 
                                          \033[0;33m║\033[0m                         \e[67D\e[1B\
-                                         \033[0;33m║\033[0m   [mine]  :             \e[67D\e[1B\
-                                         \033[0;33m║\033[0m                         \e[67D\e[1B\
-                                         \033[0;33m║\033[0m   [name]  : xxxxxxx     \e[67D\e[1B\ 
-                                         \033[0;33m║\033[0m                         \e[67D\e[1B\
-                                         \033[0;33m║\033[0m   [name]  :             \e[67D\e[1B\
-                                         \033[0;33m║\033[0m                         \e[67D\e[1B\
+                                         \033[0;33m║\033[0m  [----name-----]   XR   \e[67D\e[1B\
+                                         \033[0;33m║\033[0m   ↓←↑→↓↓↓ RELOAD[X] 0   \e[67D\e[1B\
 \e[41C\033[0;33m╩\033[0m\e[1B\r";
   printf("%s", message);
   fflush(stdout);
   printf("\033[11A");
   /*budget*/
-  printf("\r\033[61C%d\033[2B\r", budget);
+  printf("\033[0;33m\r\033[2B\033[%dC%d\r\033[0m", 76-(budget>9? 1 : 0)-(budget>99?1:0), budget);
   /*stratagem mode*/
-  printf("\r\033[63C%s\r", stratagem? "\033[0;33mENABLE\033[0m" : "DISABLE");
+  printf("\r\033[63C\033[2B%s\r\033[2A", stratagem? "\033[0;33mENABLE\033[0m" : "DISABLE");
   /*stratagems*/
   for (int i =0; i< NB_strat; i++)
   {
-    printf("\r\033[98C");
-    print_strat_arrows(stratagems[i],avia[i]);
-    printf("\033[2B");
+    printf("\r\033[87C");
+    print_strat(*stratagems[i], avia[i], budget);
+    printf("\033[1B");
   }
   printf("\033[%dB", 9-NB_strat*2);
 }
@@ -171,7 +223,7 @@ void print_congrats(bool player_has_won)
   \033[0;34mSuper Earth\033[0;0m.                                                     \033[67D\033[1B\
                                                                    \033[67D\033[1B\
   You just have proved that helldiver are superior none only on    \033[67D\033[1B\
-  the battlefield but also by their strategy.                      \033[67D\033[1B\
+  the battlefield but also by their strategy.                      \033[0;33m║\033[0m\033[68D\033[1B\
   You are the best super earth could hope for.                     \033[67D\033[1B\
                                                                    \033[67D\033[1B\
   This test is the first of a series. The goal of these training   \033[67D\033[1B\
@@ -179,14 +231,15 @@ void print_congrats(bool player_has_won)
   These tests are the property of the \033[0;34mministry of Intelligence\033[0;0m.    \033[67D\033[1B\
   No distribution of these tests will tolerated.                   \033[67D\033[1B\
                                                                    \033[67D\033[1B\
-  Keep going helldiver, \033[0;34mfor super earth!\033[0;0m                           \033[67D\033[1B";
+  Keep going helldiver, \033[0;34mfor super earth!\033[0;0m                           \033[67D\033[1B\
+                                                                   \033[67D\033[1B";
   char regrets[] = "Well, i \033[0;31mwarnd\033[0;0m you.                                               \033[67D\033[1B\
   you have been relieved of your duties. until now you are not a   \033[67D\033[1B\
   helldiver anymore. you have to join Mars as soon as possible.    \033[67D\033[1B\
   All your weapons will be reassigned to new helldiver.            \033[67D\033[1B\
   Your cape will be taken away from you, you do not deserve it.    \033[67D\033[1B\
   Not anymore.                                                     \033[67D\033[1B\
-                                                                   \033[67D\033[1B\
+                                                                   \033[0;33m║\033[0m\033[68D\033[1B\
   You are the shame of Super earth.                                \033[67D\033[1B\
   You will recive a transmition from the ministry of Humanity.     \033[67D\033[1B\
   You are accused of \033[0;31mbond\033[0;0m with the enemy, \033[0;31mconspiracy\033[0;0m against       \033[67D\033[1B\
@@ -194,9 +247,11 @@ void print_congrats(bool player_has_won)
   defence. The Ministry of Science will try to make your body      \033[67D\033[1B\
   usefull for the super earth.                                     \033[67D\033[1B\
                                                                    \033[67D\033[1B\
-  You chosed the wrong side. \033[0;31mgoodbye traitor\033[0;0m                       \033[67D\033[1B";
+  You chosed the wrong side. \033[0;31mgoodbye traitor\033[0;0m                       \033[67D\033[1B\
+                                                                   \033[67D\033[1B";
   printf("%s",player_has_won?congrats:regrets);
-  printf("\033[2B\r");
+  printf("\033[41C\033[0;33m═\033[0m\033[1B");
+  //printf("\033[2B\r");
 }
 
 void print_cursor(int cursor)
@@ -311,7 +366,7 @@ void check_availability(bool avia[4], struct stratagem *stratagems[4], int budge
 {
   for (int i = 0; i< NB_strat; i++)
   {
-    avia[i] = stratagems[i]->cost <= budget;
+    avia[i] = stratagems[i]->cost <= budget && stratagems[i]->charges > 0;
   }
 }
 
@@ -324,24 +379,27 @@ int main()
   int cursor = 0;
   bool strat_page = false;
   bool strat_input = false;
-  int budget = 5;
+  int budget = 99 ;
 
-  struct stratagem b500k = {5, 0, {1,3,2,2,2,0,0}, strat_fun_500k, 3};
-  struct stratagem mine  = {4, 0, {2,4,1,3,0,0,0}, strat_fun_mine, 1};
-  struct stratagem *stratagems[4] = {&b500k, &mine, 0, 0};
+  struct stratagem b500k = {5, 0, {1,3,2,2,2,0,0}, 3, 2, 2, 3, 0, false, false, strat_fun_500k, "500Kg bomb", false, -1,0};
+  struct stratagem mine  = {4, 0, {2,4,1,3,0,0,0}, 1, 1, 1, 1, 0, false, false, strat_fun_mine, "mine", false, -1, 0};
+  struct stratagem barrage  = {6, 0, {3,3,2,4,3,2,0}, 8, 1, 1, 5, 0, false, false, strat_fun_barrage, "380mm barrage", true, 0, 3};
+
+  struct stratagem *stratagems[4] = {&b500k, &mine, &barrage, 0};
   bool availability[4] = {true, true, true, true};
 
-  
+  int rout_bitmap = 0;
+  int *rout_durations = (int*)calloc(8, sizeof(int));
+  void (*rout_functions[8])(int *tab) = {&strat_rout_barrage, 0, 0, 0, 0, 0, 0, 0};
 
   print_canvas();
   print_message();
-  //print_init_grid(tab);
   print_grid(tab);
   print_cursor(cursor);
 
   printf("\e[?25l");
   while (end != true) {
-    if (player == 1)
+    if (player == 1) /* player turn */
     {
       char input = getch();
 
@@ -358,7 +416,29 @@ int main()
             end = game_finished(tab, last->x, last->y);
           }
           player *= -1;
-          budget += 1;
+          reload_all(stratagems,NB_strat);
+          /* routine check */
+          if (rout_bitmap != 0)
+          {
+            int *ids = to_binary(rout_bitmap);
+            for (int id = 0; id<8; id++)
+            {
+              if (ids[id])
+              {
+                rout_functions[id](tab);
+                if (rout_durations[id]>1)
+                {
+                  rout_durations[id]--;
+                }
+                else
+                {
+                  rout_bitmap -= id +1;
+                }
+              }
+            }
+            free(ids);
+          }
+          budget += BDG_ROUD;
         }
       }
       else
@@ -370,12 +450,18 @@ int main()
         if (strat_id!=-1)
         {
           stratagems[strat_id]->function(tab, cursor);
+          stratagems[strat_id]->charges--;
+          if (stratagems[strat_id]->got_rout)
+          {
+            rout_durations[stratagems[strat_id]->rout_id] = stratagems[strat_id]->rout_duration;
+            rout_bitmap += stratagems[strat_id]->rout_id+1;
+          }
           strat_input = false;
           budget-=stratagems[strat_id]->cost;
         }
       }
     }
-    else
+    else /* AI turn */
     {
       int col = automaton_thought_maker(tab, 6);
       //printf("automaton play -> %d\n", col);
@@ -386,6 +472,7 @@ int main()
 
       player *= -1;
     }
+    
     print_grid(tab);
     check_availability(availability, stratagems, budget);
     (strat_page)? print_stratagems(stratagems, availability, budget, strat_input) : print_message();
